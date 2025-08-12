@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "975641182730",
+    "project_id": "hangangramyeon-2b4fd",
+    "storage_bucket": "hangangramyeon-2b4fd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:975641182730:android:7f4e519d85bfd79b3515f3",
+        "android_client_info": {
+          "package_name": "com.vn.hangangramyeon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEvbHtmHILM05RDKKT7qJ3XMVGAQ4dEJo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
