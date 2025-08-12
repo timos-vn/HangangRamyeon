@@ -48,6 +48,11 @@ Future<String> printReceipt({
   required String ip,
   int port = 9100,
   required List<MenuItem> items,
+  String? customerName,
+  int? totalAmountOverride,
+  String? bankName,
+  String? bankAccountName,
+  String? bankAccountNumber,
 }) async {
   final profile = await CapabilityProfile.load();
   final printer = NetworkPrinter(PaperSize.mm80, profile);
@@ -58,8 +63,10 @@ Future<String> printReceipt({
   // final logo = await _loadLogo();
   final now = DateTime.now();
   final df = DateFormat('dd-MM-yyyy HH:mm');
-  final fCur = NumberFormat('#,###', 'vi_VN');
-  final totalAmount = items.fold(0, (s, e) => s + e.total);
+  final fCur = NumberFormat('#,###');
+  final totalAmount = (totalAmountOverride != null)
+      ? totalAmountOverride
+      : items.fold<int>(0, (s, e) => s + e.total);
 
   // if (logo != null) {
   //   printer.image(logo, align: PosAlign.center);
@@ -73,7 +80,9 @@ Future<String> printReceipt({
   printer.text(removeVietnamese('Số hóa đơn: 101'));
   printer.text(removeVietnamese('Thời gian: ${df.format(now)}'));
   printer.text(removeVietnamese('Thu ngân: DELI     Bill: TA123...'));
-  printer.text(removeVietnamese('Khách hàng: Chị A'));
+  if ((customerName ?? '').isNotEmpty) {
+    printer.text(removeVietnamese('Khach hang: ${customerName!}'));
+  }
   printer.text(removeVietnamese('Ghi chú: Đặt qua GRAB'));
   printer.hr();
 
@@ -116,7 +125,16 @@ Future<String> printReceipt({
   printer.text('Thanh toan: ${fCur.format(totalAmount)}',
       styles: const PosStyles(align: PosAlign.right, bold: true));
   printer.feed(1);
-  printer.qrcode('https://evat.thecoffeehouse.com');
+  // Generate payment QR (placeholder: embed bank info if available)
+  if ((bankAccountNumber ?? '').isNotEmpty) {
+    final safeBank = (bankName ?? '').replaceAll('+', '%2B');
+    final safeAcc = (bankAccountNumber ?? '');
+    final safeName = (bankAccountName ?? '').replaceAll('+', '%2B');
+    final qrPayload = 'BANK:$safeBank|ACC:$safeAcc|NAME:$safeName|AMT:$totalAmount';
+    printer.qrcode(qrPayload);
+  } else {
+    printer.qrcode('https://hangangramyeon.vn');
+  }
   printer.text('WiFi: thecoffeehouse', styles: const PosStyles(align: PosAlign.center));
   printer.feed(2);
   printer.cut();

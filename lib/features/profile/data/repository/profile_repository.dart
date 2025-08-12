@@ -9,6 +9,7 @@ import '../data_sources/profile_remote_data_source.dart';
 abstract class IProfileRepository {
   Future<Either<Failure, UserModel>> getProfile(String userId);
   Future<Either<Failure, UserModel>> updateProfile(UserModel user);
+  Future<Either<Failure, String>> deleteAccount(String userId);
 }
 
 @LazySingleton(as: IProfileRepository)
@@ -47,6 +48,21 @@ class ProfileRepository implements IProfileRepository {
     } on DioException catch (e) {
       final errorMessage = DioExceptions.fromDioError(e);
 
+      return left(ServerFailure(errorMessage: errorMessage.message));
+    } catch (e) {
+      return left(
+          ServerFailure(errorMessage: "Something went wrong: ${e.toString()}"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> deleteAccount(String userId) async {
+    try {
+      await _profileRemoteDataSource.deleteAccount(userId);
+      // Server returns 200 with a body, but we ignore body to avoid fromJson issues
+      return right('User deleted successfully');
+    } on DioException catch (e) {
+      final errorMessage = DioExceptions.fromDioError(e);
       return left(ServerFailure(errorMessage: errorMessage.message));
     } catch (e) {
       return left(

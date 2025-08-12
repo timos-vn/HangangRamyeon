@@ -14,6 +14,22 @@ class CacheService {
     return _sharedPreferences.getBool(key) ?? false;
   }
 
+  Future<void> setString(String key, String value) async {
+    await _sharedPreferences.setString(key, value);
+  }
+
+  String getString(String key) {
+    return _sharedPreferences.getString(key) ?? '';
+  }
+
+  Future<void> setInt(String key, int value) async {
+    await _sharedPreferences.setInt(key, value);
+  }
+
+  int getInt(String key) {
+    return _sharedPreferences.getInt(key) ?? 0;
+  }
+
   Future<bool> deleteAll() async {
     return await _sharedPreferences.clear();
   }
@@ -33,4 +49,19 @@ class CacheKeys {
   static const String roleName = 'role_name';
 
   static const String accessToken = 'access_token';
+
+  // App preferences
+  static const String notificationsEnabled = 'notifications_enabled';
+
+  // Cached profile/info for Const
+  static const String level = 'level';
+  static const String point = 'point';
+  static const String isManager = 'is_manager';
+  static const String pointValue = 'point_value';
+
+  // Printer and payment settings
+  static const String printerIp = 'printer_ip';
+  static const String bankAccountName = 'bank_account_name';
+  static const String bankAccountNumber = 'bank_account_number';
+  static const String bankName = 'bank_name';
 }

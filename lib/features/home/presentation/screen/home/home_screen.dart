@@ -13,6 +13,8 @@ import 'package:hangangramyeon/features/home/models/response/setting_response.da
 import 'package:hangangramyeon/features/home/presentation/screen/home/widgets/banner_slider.dart';
 import 'package:hangangramyeon/features/home/presentation/screen/home/widgets/post_list.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:hangangramyeon/core/services/shared_prefs_service.dart';
+import 'package:hangangramyeon/core/di/dependency_injection.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -57,6 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 .value ??
                 "0",
           ) ?? 0;
+          // Persist pointValue
+          getIt<CacheService>().setInt(CacheKeys.pointValue, Const.pointValue);
         }
         else if(state is HomeUserSuccess){
           Const.userId = state.userModel.data.userId.toString().trim();
@@ -65,6 +69,14 @@ class _HomeScreenState extends State<HomeScreen> {
           Const.level = state.userModel.data.pointName.toString();
           Const.isManager = state.userModel.data.roles.isNotEmpty ? state.userModel.data.roles[0].roleName.toString().contains('Manager') : false;
           Const.shopId = state.userModel.data.shops?.firstOrNull?.shopId?.toString() ?? "";
+          // Persist core user info to cache for next launch
+          final cache = getIt<CacheService>();
+          cache.setString(CacheKeys.userId, Const.userId);
+          cache.setString(CacheKeys.userName, Const.userName);
+          cache.setInt(CacheKeys.point, Const.point);
+          cache.setString(CacheKeys.level, Const.level);
+          cache.setBool(CacheKeys.isManager, Const.isManager);
+          cache.setString(CacheKeys.shopId, Const.shopId);
           context.read<HomeCubit>().getBanner(1,100);
         }else if(state is BannerSuccess){
           listBannerItem = state.bannerAndPostModel.data.items.where((e) => e.isFeatured).toList();
@@ -264,17 +276,22 @@ class _QuickActionCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _ActionItem(icon: MingCute.shopping_bag_1_fill, label: Const.isManager ? 'Đặt đơn' : 'Sản phẩm',onTap: (){
+              print(Const.isManager);
               if(Const.isManager){
                 context.push(RouteNames.scanCheckoutScreen);
               }else{
                 context.push(RouteNames.productionScreen);
               }
             },),
-            const _ActionItem(icon: Icons.location_on, label: 'Tìm cửa hàng'),
+            _ActionItem(icon: Icons.location_on, label: 'Tìm cửa hàng', onTap: (){
+              context.push(RouteNames.storeFinder);
+            }),
              _ActionItem(icon: Icons.receipt_long, label: 'Giao dịch',onTap: (){
               context.push(RouteNames.transactionScreen);
             },),
-            const _ActionItem(icon: Icons.card_giftcard, label: 'Quà của bạn'),
+            _ActionItem(icon: Icons.card_giftcard, label: 'Quà của bạn', onTap: (){
+              context.push(RouteNames.gifts);
+            }),
           ],
         ),
       ),

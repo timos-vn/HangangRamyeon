@@ -3,6 +3,8 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:hangangramyeon/features/home/models/banner_and_post_model.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hangangramyeon/core/router/app_router.dart';
 
 
 class BannerGrid extends StatelessWidget {
@@ -89,24 +91,32 @@ class _BannerCardState extends State<_BannerCard> {
               child: const Center(child: CircularProgressIndicator()),
             )
           else
-            AspectRatio(
-              aspectRatio: aspectRatio,
-              child: CachedNetworkImage(
-                imageUrl: widget.item.imageUrl.startsWith("http")
-                    ? widget.item.imageUrl
-                    : "http://hangangramyeon.vn${widget.item.imageUrl}",
-                fit: BoxFit.cover,
-                placeholder: (context, url) =>
-                    Container(color: Colors.grey[300]),
-                errorWidget: (context, url, error) =>
-                const Icon(Icons.broken_image),
+            GestureDetector(
+              onTap: () {
+                context.pushNamed(RouteNames.newsDetail, extra: widget.item);
+              },
+              child: AspectRatio(
+                aspectRatio: aspectRatio,
+                child: CachedNetworkImage(
+                  imageUrl: widget.item.imageUrl.startsWith("http")
+                      ? widget.item.imageUrl
+                      : "http://hangangramyeon.vn${widget.item.imageUrl}",
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) =>
+                      Container(color: Colors.grey[300]),
+                  errorWidget: (context, url, error) =>
+                  const Icon(Icons.broken_image),
+                ),
               ),
             ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(
-              widget.item.title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            child: GestureDetector(
+              onTap: () => context.pushNamed(RouteNames.newsDetail, extra: widget.item),
+              child: Text(
+                widget.item.title,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
           Padding(

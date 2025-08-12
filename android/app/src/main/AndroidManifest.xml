@@ -1,8 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
         android:label="hangangramyeon"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Default icon/color for FCM notifications -->
+        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/background" />
+        <meta-data android:name="com.google.firebase.messaging.default_notification_color" android:resource="@android:color/white" />
+        <!-- Google Maps API Key -->
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCw9jgxvsK9XgpRnOmTtDxg5fO_P6QK3NI" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

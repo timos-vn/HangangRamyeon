@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
+// import 'package:flutter/foundation.dart';
 
 class LocalNotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
@@ -39,16 +40,17 @@ class LocalNotificationService {
     int notificationId = title.hashCode;
 
     await cancelNotification(notificationId);
-    const androidDetails = AndroidNotificationDetails(
+    final androidDetails = AndroidNotificationDetails(
       'id_1',
       'Basic Channel',
       importance: Importance.max,
       priority: Priority.max,
+      largeIcon: const DrawableResourceAndroidBitmap('background'),
     );
 
-    const details = NotificationDetails(
+    final details = NotificationDetails(
       android: androidDetails,
-      iOS: DarwinNotificationDetails(),
+      iOS: const DarwinNotificationDetails(),
     );
 
     await _flutterLocalNotificationsPlugin.zonedSchedule(
@@ -58,6 +60,27 @@ class LocalNotificationService {
       tz.TZDateTime.from(date.subtract(Duration(minutes: reminder)), tz.local),
       details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    );
+  }
+
+  Future<void> showInstant(String title, String body, {String? payload}) async {
+    final androidDetails = AndroidNotificationDetails(
+      'id_1',
+      'Basic Channel',
+      importance: Importance.max,
+      priority: Priority.max,
+      largeIcon: const DrawableResourceAndroidBitmap('background'),
+    );
+    final details = NotificationDetails(
+      android: androidDetails,
+      iOS: const DarwinNotificationDetails(),
+    );
+    await _flutterLocalNotificationsPlugin.show(
+      DateTime.now().millisecondsSinceEpoch.remainder(1 << 31),
+      title,
+      body,
+      details,
+      payload: payload,
     );
   }
 

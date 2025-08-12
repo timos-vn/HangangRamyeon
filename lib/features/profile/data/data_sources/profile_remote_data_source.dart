@@ -16,4 +16,7 @@ abstract class IProfileRemoteDataSource {
   Future<UserModel> updateProfile(
     @Body() UserModel user,
   );
+
+  @DELETE("/api/users/{id}")
+  Future<void> deleteAccount(@Path('id') String id);
 }

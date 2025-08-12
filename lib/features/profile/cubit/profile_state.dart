@@ -67,3 +67,5 @@ class ProfileError extends ProfileState {
   @override
   List<Object?> get props => [message];
 }
+
+class ProfileDeleted extends ProfileState {}

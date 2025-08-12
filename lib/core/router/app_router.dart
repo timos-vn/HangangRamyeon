@@ -8,6 +8,14 @@ import 'package:hangangramyeon/features/home/presentation/screen/home/transactio
 import 'package:hangangramyeon/features/home/presentation/screen/home/widgets/order.dart';
 import 'package:hangangramyeon/features/main/presentation/screens/main/main_wrapper.dart';
 import 'package:hangangramyeon/features/profile/presentation/profile_screen.dart';
+import 'package:hangangramyeon/features/home/models/banner_and_post_model.dart';
+import 'package:hangangramyeon/features/home/presentation/screen/home/store_finder_screen.dart';
+import 'package:hangangramyeon/features/home/presentation/screen/home/gifts_screen.dart';
+import 'package:hangangramyeon/features/home/presentation/screen/home/news_detail_screen.dart';
+import 'package:hangangramyeon/features/profile/presentation/screens/settings_screen.dart';
+import 'package:hangangramyeon/core/widgets/bill_preview_demo.dart';
+import 'package:hangangramyeon/features/profile/presentation/screens/contact_feedback_screen.dart';
+import 'package:hangangramyeon/features/profile/presentation/screens/privacy_policy_screen.dart';
 import 'package:hangangramyeon/features/voucher/models/common_detail.dart';
 import 'package:hangangramyeon/features/voucher/presentation/screen/voucher_screen.dart';
 import '../../features/auth/presentation/screens/sign_in/sign_in_screen.dart';
@@ -26,8 +34,14 @@ class RouteNames {
   static const String productionScreen = "/productionScreen";
   static const String voucherSelectionScreen = "/voucherSelectionScreen";
   static const String settingspage = "/settings";
+  static const String contactFeedback = "/contactFeedback";
+  static const String privacyPolicy = "/privacyPolicy";
   static const String printerPage = "/printer";
   static const String transactionScreen = "/transactionScreen";
+  static const String storeFinder = "/storeFinder";
+  static const String gifts = "/gifts";
+  static const String newsDetail = "/newsDetail";
+  static const String billPreviewDemo = "/billPreviewDemo";
 }
 
 class AppRouter {
@@ -108,6 +122,21 @@ class AppRouter {
           ],
         ),
         GoRoute(
+          path: RouteNames.settingspage,
+          name: RouteNames.settingspage,
+          builder: (context, state) => const SettingsScreen(),
+        ),
+        GoRoute(
+          path: RouteNames.contactFeedback,
+          name: RouteNames.contactFeedback,
+          builder: (context, state) => const ContactFeedbackScreen(),
+        ),
+        GoRoute(
+          path: RouteNames.privacyPolicy,
+          name: RouteNames.privacyPolicy,
+          builder: (context, state) => const PrivacyPolicyScreen(),
+        ),
+        GoRoute(
           path: RouteNames.printerPage,
           name: RouteNames.printerPage,
           builder: (context, state) => const ReceiptPrinterWidget(),
@@ -136,6 +165,29 @@ class AppRouter {
             final listProduction = data?['listProduction'] as List<CommonDetail>?;
             return VoucherSelectionScreen(listProduction: listProduction);
           },
+        ),
+        GoRoute(
+          path: RouteNames.storeFinder,
+          name: RouteNames.storeFinder,
+          builder: (context, state) => const StoreFinderScreen(),
+        ),
+        GoRoute(
+          path: RouteNames.gifts,
+          name: RouteNames.gifts,
+          builder: (context, state) => const GiftsScreen(),
+        ),
+        GoRoute(
+          path: RouteNames.newsDetail,
+          name: RouteNames.newsDetail,
+          builder: (context, state) {
+            final item = state.extra as BannerItem;
+            return NewsDetailScreen(item: item);
+          },
+        ),
+        GoRoute(
+          path: RouteNames.billPreviewDemo,
+          name: RouteNames.billPreviewDemo,
+          builder: (context, state) => const BillPreviewDemo(),
         ),
       ],
     );

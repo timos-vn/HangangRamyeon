@@ -21,6 +21,11 @@ import 'package:hangangramyeon/features/home/models/response/detail_transaction_
 import 'package:hangangramyeon/features/voucher/models/check_promotion_model_response.dart';
 import 'package:hangangramyeon/features/voucher/models/common_detail.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:hangangramyeon/core/services/shared_prefs_service.dart';
+import 'package:hangangramyeon/core/di/dependency_injection.dart';
+import 'package:hangangramyeon/core/services/receipt_printer_service.dart' as printer;
+import 'package:hangangramyeon/core/services/bill_preview_service.dart';
+import 'package:hangangramyeon/core/widgets/bill_preview_widget.dart';
 import 'package:vibration/vibration.dart';
 
 class ScanCheckoutScreen extends StatefulWidget {
@@ -42,6 +47,19 @@ class _ScanCheckoutScreenState extends State<ScanCheckoutScreen> {
   String voucherSelectedId = '';
   List<String> listPromotion = [];
   String idCustomer = '';
+  @override
+  void initState() {
+    super.initState();
+    // Auto-bind current user as selected customer
+    selectedCustomerCode = Const.userId;
+    nameCustomerController.text = Const.userName;
+    if(widget.isUpdateOrder == true){
+      discountAmount = widget.detailTransactionData?.discount??0;
+      selectedCustomerCode = widget.detailTransactionData?.customerId??"";
+      nameCustomerController.text = widget.detailTransactionData?.buyerName??"";
+      addMissingFromBtoA(listA: scannedProducts, listB: widget.detailTransactionData?.details??[]);
+    }
+  }
 
   final Debounce onSearchDebounce =  Debounce(delay:  const Duration(milliseconds: 1000));
 
@@ -98,6 +116,7 @@ class _ScanCheckoutScreenState extends State<ScanCheckoutScreen> {
                         // Trả về barcode và đóng popup
                         setState(() {
                           selectedCustomerCode = values;
+                          nameCustomerController.text = values; // fallback if QR includes name
                         });
                         Navigator.of(bottomSheetContext, rootNavigator: true).pop();
                       },
@@ -139,7 +158,7 @@ class _ScanCheckoutScreenState extends State<ScanCheckoutScreen> {
                   ),
                   onChanged: (value) => onSearchDebounce.debounce(
                         () {
-                      if(value != null)  context.read<HomeCubit>().searchCustomer(value);
+                      context.read<HomeCubit>().searchCustomer(value);
                     },
                   ),
                 ),
@@ -197,7 +216,6 @@ class _ScanCheckoutScreenState extends State<ScanCheckoutScreen> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  print('000: ${controller.text}');
                   nameCustomerController.text = controller.text;
                 });
                 Navigator.pop(context);
@@ -280,18 +298,7 @@ class _ScanCheckoutScreenState extends State<ScanCheckoutScreen> {
     }
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    if(widget.isUpdateOrder == true){
-      discountAmount = widget.detailTransactionData?.discount??0;
-      discountAmount = widget.detailTransactionData?.discount??0;
-      selectedCustomerCode = widget.detailTransactionData?.customerId??"";
-      nameCustomerController.text = widget.detailTransactionData?.buyerName??"";
-      addMissingFromBtoA(listA: scannedProducts, listB: widget.detailTransactionData?.details??[]);
-    }
-  }
+  // removed duplicate initState (merged above)
 
   @override
   Widget build(BuildContext context) {
@@ -343,11 +350,11 @@ class _ScanCheckoutScreenState extends State<ScanCheckoutScreen> {
           }
           else if(state is CreateOrderSuccess){
             Utils.showFadeCenterMessage(context, 'Tạo đơn thành công');
-            context.go(RouteNames.homepage);
+            _askToPrintBill(context);
           }
           else if(state is UpdateOrderSuccess){
             Utils.showFadeCenterMessage(context, 'Cập nhật thành công');
-            context.go(RouteNames.homepage);
+            _askToPrintBill(context);
           }
         },
         builder: (context, state) {
@@ -356,6 +363,11 @@ class _ScanCheckoutScreenState extends State<ScanCheckoutScreen> {
                 title: const Text("Thanh toán"),
               centerTitle: true,
               actions: [
+                IconButton(
+                  tooltip: 'Xem trước hoá đơn',
+                  onPressed: scannedProducts.isEmpty ? null : () => _showBillPreview(context),
+                  icon: const Icon(Icons.preview),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: IconButton(onPressed: () {
@@ -384,6 +396,74 @@ class _ScanCheckoutScreenState extends State<ScanCheckoutScreen> {
             body: buildBody(state)
           );
         });
+  }
+
+  Future<void> _askToPrintBill(BuildContext context) async {
+    final shouldPrint = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('In hoá đơn'),
+        content: const Text('Đơn hàng đã tạo thành công. Bạn có muốn xem trước và in hoá đơn không?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Không')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Xem trước')),
+        ],
+      ),
+    );
+    if (shouldPrint == true) {
+      await _showBillPreview(context);
+    }
+    if (mounted) context.go(RouteNames.homepage);
+  }
+
+  Future<void> _showBillPreview(BuildContext context) async {
+    final cache = getIt<CacheService>();
+    final items = scannedProducts.map((p) => MenuItem(name: p.name, quantity: p.quantity, unitPrice: p.salePrice.toInt())).toList();
+    
+    final billData = generateBillPreview(
+      items: items,
+      customerName: nameCustomerController.text,
+      totalAmountOverride: finalAmount.toInt(),
+      bankName: cache.getString(CacheKeys.bankName),
+      bankAccountName: cache.getString(CacheKeys.bankAccountName),
+      bankAccountNumber: cache.getString(CacheKeys.bankAccountNumber),
+    );
+
+    if (!mounted) return;
+    
+    await showDialog(
+      context: context,
+      builder: (ctx) => BillPreviewWidget(
+        billData: billData,
+        onCancel: () => Navigator.pop(ctx),
+        onPrint: () async {
+          Navigator.pop(ctx);
+          await _printCurrentBill(context);
+        },
+      ),
+    );
+  }
+
+  Future<void> _printCurrentBill(BuildContext context) async {
+    final cache = getIt<CacheService>();
+    final ip = cache.getString(CacheKeys.printerIp);
+    if (ip.isEmpty) {
+      Utils.showFadeCenterMessage(context, 'Chưa cấu hình IP máy in trong Cài đặt', isError: true);
+      return;
+    }
+    final items = scannedProducts.map((p) => printer.MenuItem(name: p.name, quantity: p.quantity, unitPrice: p.salePrice.toInt())).toList();
+    final result = await printer.printReceipt(
+      ip: ip,
+      items: items,
+      customerName: nameCustomerController.text,
+      totalAmountOverride: finalAmount.toInt(),
+      bankName: cache.getString(CacheKeys.bankName),
+      bankAccountName: cache.getString(CacheKeys.bankAccountName),
+      bankAccountNumber: cache.getString(CacheKeys.bankAccountNumber),
+    );
+    if (mounted) {
+      Utils.showCenterMessage(context, result, isError: !result.contains('✅'));
+    }
   }
 
   buildBody(HomeState state){
