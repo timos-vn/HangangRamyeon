@@ -25,6 +25,7 @@ import 'features/home/blocs/home_cubit.dart';
 import 'features/main/blocs/main/bottom_nav_cubit.dart';
 import 'features/onboarding/cubit/onboarding_cubit.dart';
 import 'features/profile/cubit/profile_cubit.dart';
+import 'features/profile/cubit/settings_cubit.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -53,6 +54,16 @@ void main() async {
   final isLogged = getIt<CacheService>().getBool(CacheKeys.isLogged);
   // Load cached Const data on app start
   Const.loadFromCache(getIt<CacheService>());
+
+  // Load shops data for bill printing
+  if (isLogged == true) {
+    try {
+      final settingsCubit = getIt<SettingsCubit>();
+      await settingsCubit.getShops();
+    } catch (e) {
+      print('Error loading shops data: $e');
+    }
+  }
 
   print(token);
   print(isLogged);
@@ -102,6 +113,9 @@ class HangangRamyonApp extends StatelessWidget {
             ),
             BlocProvider(
               create: (context) => getIt<VoucherCubit>(),
+            ),
+            BlocProvider(
+              create: (context) => getIt<SettingsCubit>(),
             ),
 
           ],

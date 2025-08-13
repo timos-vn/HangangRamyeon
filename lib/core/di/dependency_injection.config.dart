@@ -32,10 +32,14 @@ import 'package:hangangramyeon/features/home/repository/home_repository.dart'
     as _i968;
 import 'package:hangangramyeon/features/profile/cubit/profile_cubit.dart'
     as _i153;
+import 'package:hangangramyeon/features/profile/cubit/settings_cubit.dart'
+    as _i105;
 import 'package:hangangramyeon/features/profile/data/data_sources/profile_remote_data_source.dart'
     as _i96;
 import 'package:hangangramyeon/features/profile/data/repository/profile_repository.dart'
     as _i580;
+import 'package:hangangramyeon/features/profile/data/services/settings_service.dart'
+    as _i22;
 import 'package:hangangramyeon/features/voucher/blocs/voucher_cubit.dart'
     as _i944;
 import 'package:hangangramyeon/features/voucher/data_sources/voucher_remote_data_source.dart'
@@ -85,6 +89,8 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i319.SecureStorageService>(),
               gh<_i574.CacheService>(),
             ));
+    gh.lazySingleton<_i22.SettingsService>(
+        () => _i22.SettingsService(gh<_i1069.ApiService>()));
     gh.lazySingleton<_i591.IVoucherRepository>(
         () => _i591.VoucherRepository(gh<_i250.IVoucherRemoteDataSource>()));
     gh.factory<_i944.VoucherCubit>(
@@ -97,6 +103,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i10.IAuthRemoteDataSource>(),
           gh<_i996.IAuthLocalDataSource>(),
         ));
+    gh.factory<_i105.SettingsCubit>(
+        () => _i105.SettingsCubit(gh<_i22.SettingsService>()));
     gh.factory<_i643.AuthenticationCubit>(
         () => _i643.AuthenticationCubit(gh<_i180.IAuthRepository>()));
     return this;

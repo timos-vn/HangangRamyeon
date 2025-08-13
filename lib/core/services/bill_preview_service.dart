@@ -123,18 +123,18 @@ BillPreviewData generateBillPreview({
   }
 
   return BillPreviewData(
-    header: 'THE COFFEE HOUSE',
-    address: '195/10 Điện Biên Phủ, Q. Bình Thạnh',
+    header: 'HANGANG RAMYEON',
+    address: '262 Nguyễn Huy Tưởng, Thanh Xuân, HN',
     billNumber: '101',
     dateTime: df.format(now),
     cashier: 'DELI',
     customerName: customerName ?? '',
-    note: 'Đặt qua GRAB',
+    note: 'Đặt qua Úng dụng',
     items: billItems,
     totalQuantity: totalQty,
     totalAmount: totalAmount,
     paymentMethod: fCur.format(totalAmount),
     qrCode: qrCode,
-    wifi: 'thecoffeehouse',
+    wifi: 'hangangramyeon',
   );
 }

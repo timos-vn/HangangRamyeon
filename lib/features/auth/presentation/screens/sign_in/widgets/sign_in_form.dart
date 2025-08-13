@@ -12,6 +12,7 @@ import 'package:hangangramyeon/core/widgets/app_textfield.dart';
 
 import '../../../../blocs/authentication/authentication_cubit.dart';
 import '../../../../blocs/login_form/login_form_cubit.dart';
+import '../../forgot_password_screen.dart';
 
 class SignInForm extends StatelessWidget {
   const SignInForm({super.key});
@@ -47,7 +48,11 @@ class SignInForm extends StatelessWidget {
           alignment: Alignment.centerRight,
           child: TextButton(
             onPressed: () {
-              // TODO: Thêm logic quên mật khẩu
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const ForgotPasswordScreen(),
+                ),
+              );
             },
             child: Text(
               "Quên mật khẩu hỏ?",

@@ -50,9 +50,12 @@ class _ScanCheckoutScreenState extends State<ScanCheckoutScreen> {
   @override
   void initState() {
     super.initState();
-    // Auto-bind current user as selected customer
-    selectedCustomerCode = Const.userId;
-    nameCustomerController.text = Const.userName;
+
+    if(!Const.isManager){
+      selectedCustomerCode = Const.userId;
+      nameCustomerController.text = Const.userName;
+    }
+
     if(widget.isUpdateOrder == true){
       discountAmount = widget.detailTransactionData?.discount??0;
       selectedCustomerCode = widget.detailTransactionData?.customerId??"";
@@ -730,7 +733,7 @@ class _ScanCheckoutScreenState extends State<ScanCheckoutScreen> {
                                 discount: discountAmount,
                                 note: '',
                                 customerId: selectedCustomerCode.toString().replaceAll('null', '').isNotEmpty ? selectedCustomerCode.toString() : null,
-                                voucherCodeId: voucherSelectedId.toString().replaceAll('null', '').isNotEmpty ? voucherSelectedId.toString() : null,
+                                 voucherCodeId: voucherSelectedId.replaceAll('null', '').isNotEmpty ? voucherSelectedId : null,
                                 Lot: widget.detailTransactionData!.invoiceCode.toString(),
                                 totalCount: scannedProducts.length,
                                 pointUsed: diemKH,
@@ -779,8 +782,9 @@ class _ScanCheckoutScreenState extends State<ScanCheckoutScreen> {
                                 totalPayment: finalAmount,
                                 totalDisCountLine: 0,
                                 totalDisCount: discountAmount,
-                                voucherCodeId: voucherSelectedId,
-                                voucherCode: voucherSelectedName.toString()
+                                 voucherCodeId: voucherSelectedId.replaceAll('null', '').isNotEmpty ? voucherSelectedId : null,
+                                 voucherCode: voucherSelectedName.replaceAll('null', '').isNotEmpty ? voucherSelectedName : null,
+                                customerId: selectedCustomerCode.toString().replaceAll('null', '').isNotEmpty ? selectedCustomerCode.toString() : null,
 
                             );
                             context.read<HomeCubit>().createOrder(createOrderRequest);

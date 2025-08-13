@@ -13,9 +13,12 @@ import 'package:hangangramyeon/features/home/presentation/screen/home/store_find
 import 'package:hangangramyeon/features/home/presentation/screen/home/gifts_screen.dart';
 import 'package:hangangramyeon/features/home/presentation/screen/home/news_detail_screen.dart';
 import 'package:hangangramyeon/features/profile/presentation/screens/settings_screen.dart';
+import 'package:hangangramyeon/features/profile/presentation/screens/account_info_screen.dart';
+import 'package:hangangramyeon/features/profile/presentation/screens/change_password_screen.dart';
 import 'package:hangangramyeon/core/widgets/bill_preview_demo.dart';
 import 'package:hangangramyeon/features/profile/presentation/screens/contact_feedback_screen.dart';
 import 'package:hangangramyeon/features/profile/presentation/screens/privacy_policy_screen.dart';
+import 'package:hangangramyeon/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:hangangramyeon/features/voucher/models/common_detail.dart';
 import 'package:hangangramyeon/features/voucher/presentation/screen/voucher_screen.dart';
 import '../../features/auth/presentation/screens/sign_in/sign_in_screen.dart';
@@ -42,6 +45,9 @@ class RouteNames {
   static const String gifts = "/gifts";
   static const String newsDetail = "/newsDetail";
   static const String billPreviewDemo = "/billPreviewDemo";
+  static const String accountInfo = "/accountInfo";
+  static const String changePassword = "/changePassword";
+  static const String forgotPassword = "/forgotPassword";
 }
 
 class AppRouter {
@@ -188,6 +194,21 @@ class AppRouter {
           path: RouteNames.billPreviewDemo,
           name: RouteNames.billPreviewDemo,
           builder: (context, state) => const BillPreviewDemo(),
+        ),
+        GoRoute(
+          path: RouteNames.accountInfo,
+          name: RouteNames.accountInfo,
+          builder: (context, state) => const AccountInfoScreen(),
+        ),
+        GoRoute(
+          path: RouteNames.changePassword,
+          name: RouteNames.changePassword,
+          builder: (context, state) => const ChangePasswordScreen(),
+        ),
+        GoRoute(
+          path: RouteNames.forgotPassword,
+          name: RouteNames.forgotPassword,
+          builder: (context, state) => const ForgotPasswordScreen(),
         ),
       ],
     );

@@ -284,8 +284,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           _SettingsTile(
             icon: Icons.edit,
-            label: 'Thay đổi thông tin tài khoản',
-            onTap: () {},
+            label: 'Thông tin tài khoản',
+            onTap: () {
+              context.pushNamed(RouteNames.accountInfo);
+            },
+          ),
+          _SettingsTile(
+            icon: Icons.lock,
+            label: 'Thay đổi mật khẩu',
+            onTap: () {
+              context.pushNamed(RouteNames.changePassword);
+            },
           ),
           _SettingsTile(icon: Icons.settings, label: 'Cài đặt chung', onTap: () {
             context.pushNamed(RouteNames.settingspage);
